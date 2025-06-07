@@ -2,7 +2,7 @@ import { FileUp } from 'lucide-react';
 import React, { useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 
-const ImageUploader = () => {
+const ImageUploader = ({ setIsLoading, setResponseImage }) => {
   const inputRef = useRef(null);
   const [selectedFile, setSelectedFile] = useState(null);
 
@@ -16,21 +16,32 @@ const ImageUploader = () => {
       toast.error('Please select an image first');
       return;
     }
-    const formData = new FormData();
-    formData.append('image', selectedFile);
-    const response = await fetch('http://localhost:5000/upload', {
-      method: 'POST',
-      body: formData,
-    });
-    const data = await response.json();
-    if (response.status === 200) {
-      toast.success('Image uploaded successfully!');
-      setSelectedFile(null);
-      inputRef.current.value = null;
-    } else {
-      toast.error(data.error || 'Failed to upload image');
+    setIsLoading?.(true);
+    try {
+      const formData = new FormData();
+      formData.append('image', selectedFile);
+      const response = await fetch('http://localhost:5000/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await response.json();
+      if (response.status === 200) {
+        toast.success('Image uploaded successfully!');
+        setResponseImage?.(data.image);
+        setSelectedFile(null);
+        if (inputRef.current) {
+          inputRef.current.value = null;
+        }
+      } else {
+        toast.error(data.error || 'Failed to upload image');
+      }
+      console.log(data);
+    } catch (err) {
+      toast.error('An error occurred during upload', err.message);
+      console.error('Upload error:', err);
+    } finally {
+      setIsLoading?.(false);
     }
-    console.log(data);
   };
 
   return (

@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
 import ImageUploader from '../components/ImageUploader.jsx';
 import ExampleFlow from '../components/ExampleFlow.jsx';
+import LoadingComponent from '../components/LoadingComponent.jsx';
+import ResponseImage from '../components/ResponseImage.jsx';
 
 const GITHUB_REPO_URL = 'https://github.com/your-username/your-repo';
 
 const MainPage = () => {
   const [showUploader, setShowUploader] = useState(false);
   const [uploaderVisible, setUploaderVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [responseImage, setResponseImage] = useState(null);
 
   const [headlineIn, setHeadlineIn] = useState(false);
   const [sublineIn, setSublineIn] = useState(false);
@@ -90,19 +94,17 @@ const MainPage = () => {
             Upload your photo, get a personalized avatar in seconds.
           </p>
         </div>
-        {/* ExampleFlow animated entrance */}
         <div
           className={`transition-all duration-700 delay-500 ${
-            headlineIn && sublineIn && !showUploader
+            headlineIn && sublineIn && !showUploader && !responseImage
               ? 'opacity-100 translate-y-0 scale-100'
               : 'opacity-0 translate-y-8 scale-95 pointer-events-none'
           }`}
         >
-          <ExampleFlow animateIn={headlineIn && sublineIn && !showUploader} />
+          <ExampleFlow animateIn={headlineIn && sublineIn && !showUploader && !responseImage} />
         </div>
 
-        {/* Upload button animated entrance */}
-        {!showUploader && (
+        {!showUploader && !responseImage && (
           <button
             className={`px-6 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg hover:bg-blue-700 transition-all duration-700 delay-700 scale-100 hover:scale-105
               ${headlineIn && sublineIn ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95 pointer-events-none'}
@@ -112,17 +114,38 @@ const MainPage = () => {
             Upload Image
           </button>
         )}
-        {/* ImageUploader transition remains snappy */}
+
+        {isLoading && !responseImage && (
+          <div className="w-full max-w-md mt-8">
+            <LoadingComponent />
+          </div>
+        )}
         <div
           className={`rounded-xl shadow-lg p-6 bg-base-50 w-full max-w-md mt-8 transition-all duration-300 ease-out
-            ${uploaderVisible ? 'translate-y-[-120px] opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-95 pointer-events-none'}
+            ${uploaderVisible && !isLoading && !responseImage ? 'translate-y-[-120px] opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-95 pointer-events-none'}
             ${showUploader && !uploaderVisible ? 'delay-300' : ''}
           `}
           style={{
             marginTop: uploaderVisible ? '-120px' : '2rem',
           }}
         >
-          {uploaderVisible && <ImageUploader />}
+          {uploaderVisible && !isLoading && !responseImage && (
+            <ImageUploader setIsLoading={setIsLoading} setResponseImage={setResponseImage} />
+          )}
+        </div>
+
+        {/* ResponseImage with animated entry */}
+        <div
+          className={`rounded-xl shadow-lg p-6 bg-base-50 w-full max-w-md mt-8 transition-all duration-300 ease-out
+            ${responseImage ? 'translate-y-[-120px] opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-95 pointer-events-none'}
+          `}
+          style={{
+            marginTop: responseImage ? '-120px' : '2rem',
+          }}
+        >
+          {responseImage && (
+            <ResponseImage image={responseImage} onBack={() => setResponseImage(null)} />
+          )}
         </div>
       </main>
     </div>
