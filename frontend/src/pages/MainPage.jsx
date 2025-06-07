@@ -1,10 +1,30 @@
-import ImageUploader from '../components/ImageUploader.jsx'
+import { useState, useEffect } from 'react';
+import ImageUploader from '../components/ImageUploader.jsx';
+import ExampleFlow from '../components/ExampleFlow.jsx';
 
 const GITHUB_REPO_URL = 'https://github.com/your-username/your-repo';
 
 const MainPage = () => {
+  const [showUploader, setShowUploader] = useState(false);
+  const [uploaderVisible, setUploaderVisible] = useState(false);
+
+  const [headlineIn, setHeadlineIn] = useState(false);
+  const [sublineIn, setSublineIn] = useState(false);
+  const [bgImagesIn, setBgImagesIn] = useState(false);
+
+  useEffect(() => {
+    setTimeout(() => setHeadlineIn(true), 100);
+    setTimeout(() => setSublineIn(true), 400);
+    setTimeout(() => setBgImagesIn(true), 700);
+  }, []);
+
+  const handleShowUploader = () => {
+    setShowUploader(true);
+    setTimeout(() => setUploaderVisible(true), 300);
+  };
+
   return (
-    <div className="min-h-screen bg-base-200 relative overflow-x-hidden overflow-y-hidden">
+    <div className="flex flex-col min-h-screen bg-base-200 relative overflow-x-hidden overflow-y-hidden">
       <div className="relative" style={{ paddingTop: '96px' }}>
         <header className="w-full bg-base-100/70 backdrop-blur-md shadow-none fixed top-0 left-0 right-0 z-30 transition-all">
           <div className="flex items-center justify-between w-full px-4 sm:px-6 md:px-12 py-4 max-w-screen-2xl mx-auto">
@@ -34,7 +54,9 @@ const MainPage = () => {
         <img
           src="/avatar_27.png"
           alt="Avatar"
-          className="absolute right-0 z-0 w-[600px] h-[600px] max-w-none max-h-none rounded-full object-cover pointer-events-none select-none opacity-30 blur-sm"
+          className={`absolute right-0 z-0 w-[60vw] max-w-[600px] h-auto aspect-square rounded-full object-cover pointer-events-none select-none opacity-30 blur-sm transition-all duration-700
+            ${bgImagesIn ? 'translate-y-0 opacity-30' : 'translate-y-[-40px] opacity-0'}
+          `}
           style={{
             top: '96px',
             transform: 'translateY(-20%) translateX(20%)',
@@ -43,24 +65,64 @@ const MainPage = () => {
         <img
           src="/avatar_15.png"
           alt="Avatar"
-          className="absolute left-0 bottom-0 z-0 w-[600px] h-[600px] max-w-none max-h-none rounded-full object-cover pointer-events-none select-none opacity-30 blur-sm"
+          className={`absolute left-0 z-0 w-[60vw] max-w-[600px] h-auto aspect-square rounded-full object-cover pointer-events-none select-none opacity-30 blur-sm transition-all duration-700
+            ${bgImagesIn ? 'translate-y-0 opacity-30' : 'translate-y-[40px] opacity-0'}
+          `}
           style={{
-            top: '96px',
             transform: 'translateY(30%) translateX(-25%)',
           }}
         />
       </div>
-      <main className="flex flex-col items-center justify-center min-h-[80vh]">
-        <div className="text-center mt-12 mb-8">
-          <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent mb-4">
+      <main className="flex flex-col items-center flex-1">
+        <div className="text-center mt-8 mb-8">
+          <h1
+            className={`text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent mb-4 transition-all duration-700
+              ${headlineIn ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-8 scale-90'}
+            `}
+          >
             Transform Your Photo into a Unique Avatar!
           </h1>
-          <p className="text-lg md:text-xl text-gray-400 font-semibold drop-shadow-sm">
+          <p
+            className={`text-lg md:text-xl text-gray-400 font-semibold drop-shadow-sm transition-all duration-700 delay-200
+              ${sublineIn ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-8 scale-90'}
+            `}
+          >
             Upload your photo, get a personalized avatar in seconds.
           </p>
         </div>
-        <div className="rounded-xl shadow-lg p-6 bg-base-50 w-full max-w-md mt-8">
-          <ImageUploader />
+        {/* ExampleFlow animated entrance */}
+        <div
+          className={`transition-all duration-700 delay-500 ${
+            headlineIn && sublineIn && !showUploader
+              ? 'opacity-100 translate-y-0 scale-100'
+              : 'opacity-0 translate-y-8 scale-95 pointer-events-none'
+          }`}
+        >
+          <ExampleFlow animateIn={headlineIn && sublineIn && !showUploader} />
+        </div>
+
+        {/* Upload button animated entrance */}
+        {!showUploader && (
+          <button
+            className={`px-6 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg hover:bg-blue-700 transition-all duration-700 delay-700 scale-100 hover:scale-105
+              ${headlineIn && sublineIn ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95 pointer-events-none'}
+            `}
+            onClick={handleShowUploader}
+          >
+            Upload Image
+          </button>
+        )}
+        {/* ImageUploader transition remains snappy */}
+        <div
+          className={`rounded-xl shadow-lg p-6 bg-base-50 w-full max-w-md mt-8 transition-all duration-300 ease-out
+            ${uploaderVisible ? 'translate-y-[-120px] opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-95 pointer-events-none'}
+            ${showUploader && !uploaderVisible ? 'delay-300' : ''}
+          `}
+          style={{
+            marginTop: uploaderVisible ? '-120px' : '2rem',
+          }}
+        >
+          {uploaderVisible && <ImageUploader />}
         </div>
       </main>
     </div>
